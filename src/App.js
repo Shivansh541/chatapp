@@ -1,24 +1,76 @@
-import logo from './logo.svg';
 import './App.css';
+import Home from './components/Home';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import { useEffect, useState } from 'react';
 
 function App() {
+  const host = 'http://localhost:5000';
+  const [user, setUser] = useState({});
+  const [conversations, setConversations] = useState([]);
+
+  const getUser = async () => {
+    try {
+      const response = await fetch(`${host}/api/auth/getuser`, {
+        method: "POST",
+        headers: {
+          "auth-token": localStorage.getItem('token'),
+        },
+      });
+      if (response.ok) {
+        const user = await response.json();
+        setUser(user);
+      } else {
+        console.error('Failed to fetch user');
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      getUser();
+    }
+  }, []);
+
+  useEffect(() => {
+    const getUserConversation = async () => {
+      try {
+        if (user._id) {
+          const response = await fetch(`${host}/api/conversation/${user._id}`, {
+            method: "GET",
+            headers: {
+              "content-type": "application/json",
+            },
+          });
+          if (response.ok) {
+            const conversation = await response.json();
+            console.log(conversation)
+            setConversations(conversation);
+          } else {
+            console.error('Failed to fetch conversations');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+      }
+    };
+
+    if (user._id) {
+      getUserConversation();
+    }
+  }, [user._id]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path='/' element={<Home user={user} conversations={conversations} />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
