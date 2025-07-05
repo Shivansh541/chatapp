@@ -66,9 +66,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/chatapp' element={<Home user={user} conversations={conversations} />} />
-        <Route path='/chatapp/login' element={<Login />} />
-        <Route path='/chatapp/signup' element={<Signup />} />
+        <Route path='/' element={<Home user={user} conversations={conversations} />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Signup />} />
       </Routes>
     </Router>
   );
